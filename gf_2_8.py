@@ -1,11 +1,5 @@
-''' 
-The following program computes the multiplication
-between two 8 bit numbers in GF(2⁸), this means that 
-given A(x) and B(x) inputted in hex by the user, 
-it outputs C(x) = A(x) * B(x) mod P(x) where P(x) is an
-irreducible polynomial (0x11B)
-'''
-import wx
+import tkinter as tk
+from tkinter import ttk
 
 def gf_mult(a, b):
     result = 0
@@ -17,53 +11,37 @@ def gf_mult(a, b):
             result ^= 0x11B << (bit - 8)
     return result & 0xFF
 
-class GF2nFrame(wx.Frame):
-    def __init__(self, parent, title):
-        super(GF2nFrame, self).__init__(parent, title=title, size=(350, 200))
-        self.panel = wx.Panel(self)
-        self.init_ui()
+def calculate_result():
+    a_hex = entry_a.get()
+    b_hex = entry_b.get()
+    a = int(a_hex, 16)
+    b = int(b_hex, 16)
+    result = gf_mult(a, b)
+    result_label.config(text=f"Result (in hex): {result:02X}")
 
-    def init_ui(self):
-        vbox = wx.BoxSizer(wx.VERTICAL)
+# Create the main window
+root = tk.Tk()
+root.title("GF(2^8) Multiplication")
 
-        hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        st1 = wx.StaticText(self.panel, label='A (hex):')
-        hbox1.Add(st1, flag=wx.RIGHT, border=8)
-        self.a_input = wx.TextCtrl(self.panel)
-        hbox1.Add(self.a_input, proportion=1)
-        vbox.Add(hbox1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+# Create and pack the widgets
+frame = ttk.Frame(root, padding="10")
+frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
-        hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        st2 = wx.StaticText(self.panel, label='B (hex):')
-        hbox2.Add(st2, flag=wx.RIGHT, border=8)
-        self.b_input = wx.TextCtrl(self.panel)
-        hbox2.Add(self.b_input, proportion=1)
-        vbox.Add(hbox2, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+label_a = ttk.Label(frame, text="Enter A in hex (e.g., '1A'):")
+label_a.grid(column=0, row=0, sticky=tk.W, pady=2)
+entry_a = ttk.Entry(frame, width=10)
+entry_a.grid(column=1, row=0, sticky=(tk.W, tk.E), pady=2)
 
-        hbox3 = wx.BoxSizer(wx.HORIZONTAL)
-        calc_btn = wx.Button(self.panel, label='Calculate')
-        hbox3.Add(calc_btn)
-        self.result_text = wx.StaticText(self.panel, label='')
-        hbox3.Add(self.result_text, flag=wx.LEFT, border=10)
-        vbox.Add(hbox3, flag=wx.ALIGN_CENTER|wx.TOP|wx.BOTTOM, border=10)
+label_b = ttk.Label(frame, text="Enter B in hex (e.g., '03'):")
+label_b.grid(column=0, row=1, sticky=tk.W, pady=2)
+entry_b = ttk.Entry(frame, width=10)
+entry_b.grid(column=1, row=1, sticky=(tk.W, tk.E), pady=2)
 
-        calc_btn.Bind(wx.EVT_BUTTON, self.on_calc)
+calculate_button = ttk.Button(frame, text="Calculate", command=calculate_result)
+calculate_button.grid(column=0, row=2, columnspan=2, pady=5)
 
-        self.panel.SetSizer(vbox)
+result_label = ttk.Label(frame, text="Result (in hex): ")
+result_label.grid(column=0, row=3, columnspan=2, sticky=tk.W, pady=2)
 
-    def on_calc(self, event):
-        a_hex = self.a_input.GetValue()
-        b_hex = self.b_input.GetValue()
-        try:
-            a = int(a_hex, 16)
-            b = int(b_hex, 16)
-            result = gf_mult(a, b)
-            self.result_text.SetLabel(f'Result: {result:02X}')
-        except ValueError:
-            wx.MessageBox('Please enter valid hexadecimal numbers', 'Error', wx.OK | wx.ICON_ERROR)
-
-if __name__ == '__main__':
-    app = wx.App(False)
-    frame = GF2nFrame(None, title='GF(2^8) Multiplication')
-    frame.Show()
-    app.MainLoop()
+# Run the application
+root.mainloop()
