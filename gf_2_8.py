@@ -2,13 +2,22 @@ import tkinter as tk
 from tkinter import ttk
 
 def gf_mult(a, b):
+    """
+    Multiply two 8-bit numbers in GF(2^8) using the irreducible polynomial 0x11B.
+    """
+    # Initialize the result
     result = 0
+    # Iterate through all bits of b
     for bit in range(8):
+        # If the current bit of b is set, add (XOR) a to the result
         if b & (1 << bit):
             result ^= a << bit
+    # Modular reduction by the irreducible polynomial 0x11B
     for bit in range(15, 7, -1):
         if result & (1 << bit):
+            # If bit is set, reduce it by the irreducible polynomial shifted accordingly
             result ^= 0x11B << (bit - 8)
+    # Ensure the result fits in 8 bits
     return result & 0xFF
 
 def calculate_result():
